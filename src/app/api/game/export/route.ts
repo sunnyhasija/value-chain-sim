@@ -1,0 +1,85 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { exportSessionData } from '@/lib/db';
+import { ALL_ACTIVITIES } from '@/lib/activities';
+import { LINKAGES } from '@/lib/linkages';
+
+export async function GET(request: NextRequest) {
+  try {
+    const authSession = await getServerSession(authOptions);
+    if (!authSession?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const sessionId = searchParams.get('sessionId');
+    const format = searchParams.get('format') || 'json';
+
+    if (!sessionId) {
+      return NextResponse.json({ error: 'Session ID is required' }, { status: 400 });
+    }
+
+    const data = await exportSessionData(sessionId);
+
+    if (format === 'csv') {
+      // Create CSV export
+      const rows: string[] = [];
+
+      // Header row
+      rows.push([
+        'Team Name',
+        'Team Code',
+        'Final CAS',
+        'Final Margin',
+        'Final Budget',
+        ...ALL_ACTIVITIES.map(a => `${a.name} Health`),
+        ...LINKAGES.map(l => `${l.id} Active`),
+      ].join(','));
+
+      // Data rows
+      for (const team of data.teams) {
+        const activities = data.teamActivities[team.id] || [];
+        const activeLinkages = team.cycleResults[team.cycleResults.length - 1]?.activeLinkages || [];
+
+        const row = [
+          `"${team.name}"`,
+          team.code,
+          team.cas.toFixed(1),
+          team.margin.toFixed(2),
+          team.budget.toFixed(2),
+          ...ALL_ACTIVITIES.map(a => {
+            const act = activities.find(ta => ta.activityId === a.id);
+            return act ? act.health.toFixed(1) : '0';
+          }),
+          ...LINKAGES.map(l => activeLinkages.includes(l.id) ? '1' : '0'),
+        ];
+
+        rows.push(row.join(','));
+      }
+
+      const csv = rows.join('\n');
+
+      return new NextResponse(csv, {
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename="game-${sessionId}-export.csv"`,
+        },
+      });
+    }
+
+    // JSON export (default)
+    return NextResponse.json({
+      exportedAt: new Date().toISOString(),
+      activityDefinitions: ALL_ACTIVITIES,
+      linkageDefinitions: LINKAGES,
+      ...data,
+    });
+  } catch (error) {
+    console.error('Error exporting data:', error);
+    return NextResponse.json(
+      { error: 'Failed to export data' },
+      { status: 500 }
+    );
+  }
+}
