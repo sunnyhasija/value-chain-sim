@@ -6,6 +6,15 @@ import { ShockDefinition, TeamRanking } from './types';
 let pusherServer: Pusher | null = null;
 
 export function getPusherServer(): Pusher {
+  if (
+    !process.env.PUSHER_APP_ID ||
+    !process.env.PUSHER_KEY ||
+    !process.env.PUSHER_SECRET ||
+    !process.env.PUSHER_CLUSTER
+  ) {
+    throw new Error('Pusher server config is missing');
+  }
+
   if (!pusherServer) {
     pusherServer = new Pusher({
       appId: process.env.PUSHER_APP_ID!,
@@ -16,6 +25,14 @@ export function getPusherServer(): Pusher {
     });
   }
   return pusherServer;
+}
+
+export function getPusherServerOptional(): Pusher | null {
+  try {
+    return getPusherServer();
+  } catch {
+    return null;
+  }
 }
 
 // Client-side Pusher instance (singleton)
@@ -70,7 +87,8 @@ export async function triggerTeamJoined(
   teamId: string,
   teamName: string
 ): Promise<void> {
-  const pusher = getPusherServer();
+  const pusher = getPusherServerOptional();
+  if (!pusher) return;
   await pusher.trigger(getSessionChannel(sessionId), EVENTS.TEAM_JOINED, {
     teamId,
     teamName,
@@ -82,7 +100,8 @@ export async function triggerDecisionSubmitted(
   teamId: string,
   teamName: string
 ): Promise<void> {
-  const pusher = getPusherServer();
+  const pusher = getPusherServerOptional();
+  if (!pusher) return;
   await pusher.trigger(getSessionChannel(sessionId), EVENTS.DECISION_SUBMITTED, {
     teamId,
     teamName,
@@ -94,7 +113,8 @@ export async function triggerCycleAdvanced(
   cycle: number,
   shock: ShockDefinition | null
 ): Promise<void> {
-  const pusher = getPusherServer();
+  const pusher = getPusherServerOptional();
+  if (!pusher) return;
   await pusher.trigger(getSessionChannel(sessionId), EVENTS.CYCLE_ADVANCED, {
     cycle,
     shock,
@@ -105,7 +125,8 @@ export async function triggerShockAnnounced(
   sessionId: string,
   shock: ShockDefinition
 ): Promise<void> {
-  const pusher = getPusherServer();
+  const pusher = getPusherServerOptional();
+  if (!pusher) return;
   await pusher.trigger(getSessionChannel(sessionId), EVENTS.SHOCK_ANNOUNCED, {
     shock,
   });
@@ -115,14 +136,16 @@ export async function triggerGameCompleted(
   sessionId: string,
   rankings: TeamRanking[]
 ): Promise<void> {
-  const pusher = getPusherServer();
+  const pusher = getPusherServerOptional();
+  if (!pusher) return;
   await pusher.trigger(getSessionChannel(sessionId), EVENTS.GAME_COMPLETED, {
     rankings,
   });
 }
 
 export async function triggerStateUpdated(sessionId: string): Promise<void> {
-  const pusher = getPusherServer();
+  const pusher = getPusherServerOptional();
+  if (!pusher) return;
   await pusher.trigger(getSessionChannel(sessionId), EVENTS.STATE_UPDATED, {
     timestamp: Date.now(),
   });
@@ -134,6 +157,7 @@ export async function notifyTeam(
   event: string,
   data: Record<string, unknown>
 ): Promise<void> {
-  const pusher = getPusherServer();
+  const pusher = getPusherServerOptional();
+  if (!pusher) return;
   await pusher.trigger(getTeamChannel(teamId), event, data);
 }
