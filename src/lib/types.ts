@@ -7,7 +7,8 @@ export interface GameSession {
   id: string;
   code: string;                    // Instructor access code
   status: GameStatus;
-  currentCycle: number;            // 1-4
+  currentCycle: number;            // 1-N
+  maxCycles: number;               // Total cycles for this session
   cycleStartTime: number;          // Timestamp
   cycleTimeLimit: number;          // Seconds (300 default)
   shock: string | null;            // Current cycle shock ID
@@ -120,6 +121,7 @@ export interface GameState {
 export interface CreateGameRequest {
   teamCount?: number;              // Default 8
   cycleTimeLimit?: number;         // Default 300 seconds
+  maxCycles?: number;              // Default 4
 }
 
 export interface CreateGameResponse {
@@ -176,6 +178,6 @@ export const STARTING_REVENUE = 1000;           // $1 billion
 export const STARTING_OPERATING_PROFIT = 50;    // $50 million
 export const STARTING_MARGIN = 5;               // 5%
 export const BUDGET_PERCENTAGE = 0.05;          // 5% of revenue
-export const MAX_CYCLES = 4;
+export const DEFAULT_MAX_CYCLES = 4;
 export const DEFAULT_CYCLE_TIME = 300;          // 5 minutes
 export const DEFAULT_TEAM_COUNT = 8;

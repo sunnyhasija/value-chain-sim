@@ -6,7 +6,6 @@ import {
   CycleResult,
   GameSession,
   TeamRanking,
-  MAX_CYCLES,
   BUDGET_PERCENTAGE,
 } from './types';
 import {
@@ -264,7 +263,7 @@ export async function advanceCycle(
 
   // Check if game is now complete
   const updatedSession = await getSession(sessionId);
-  if (updatedSession && updatedSession.currentCycle > MAX_CYCLES) {
+  if (updatedSession && updatedSession.currentCycle > updatedSession.maxCycles) {
     await completeGame(sessionId);
 
     // Get final rankings

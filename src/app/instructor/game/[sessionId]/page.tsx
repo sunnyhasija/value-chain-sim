@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
-import { GameSession, Team, TeamActivity, TeamRanking, ShockDefinition, MAX_CYCLES } from '@/lib/types';
+import { GameSession, Team, TeamActivity, TeamRanking, ShockDefinition } from '@/lib/types';
 import { TeamOverview } from '@/components/instructor/TeamOverview';
 import { CASBreakdown } from '@/components/instructor/CASBreakdown';
 import { ShockInjector } from '@/components/instructor/ShockInjector';
@@ -123,7 +123,7 @@ export default function InstructorGamePage() {
             )}
             <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-center">
               <div className="text-xl font-semibold text-white">
-                {gameState.session.currentCycle} / {MAX_CYCLES}
+                {gameState.session.currentCycle} / {gameState.session.maxCycles}
               </div>
               <div className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
                 Cycle
@@ -154,7 +154,7 @@ export default function InstructorGamePage() {
               Game Complete!
             </h2>
             <p className="text-emerald-200 mb-6">
-              All {MAX_CYCLES} cycles have been completed.
+              All {gameState.session.maxCycles} cycles have been completed.
             </p>
             <ExportButton sessionId={sessionId} />
           </div>
@@ -196,7 +196,7 @@ export default function InstructorGamePage() {
                 <h4 className="text-base font-semibold text-white mb-3">
                   {gameState.session.currentCycle === 0
                     ? 'Start Game'
-                    : gameState.session.currentCycle >= MAX_CYCLES
+                    : gameState.session.currentCycle >= gameState.session.maxCycles
                     ? 'End Game'
                     : 'Advance Cycle'}
                 </h4>
@@ -223,7 +223,7 @@ export default function InstructorGamePage() {
                     ? 'Processing...'
                     : gameState.session.currentCycle === 0
                     ? 'Start Cycle 1'
-                    : gameState.session.currentCycle >= MAX_CYCLES
+                    : gameState.session.currentCycle >= gameState.session.maxCycles
                     ? 'Complete Game'
                     : `Advance to Cycle ${gameState.session.currentCycle + 1}`}
                 </button>

@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
-import { Team, TeamActivity, TeamRanking, GameSession, ShockDefinition, MAX_CYCLES } from '@/lib/types';
+import { Team, TeamActivity, TeamRanking, GameSession, ShockDefinition } from '@/lib/types';
 import { CompanyBrief } from '@/components/team/CompanyBrief';
 import { InvestmentAllocator } from '@/components/team/InvestmentAllocator';
 import { RankingDisplay } from '@/components/team/RankingDisplay';
@@ -292,7 +292,7 @@ export default function TeamGamePage() {
                 {gameState.team.name}
               </h1>
               <p className="text-sm text-gray-500">
-                Cycle {gameState.session.currentCycle} of {MAX_CYCLES}
+                Cycle {gameState.session.currentCycle} of {gameState.session.maxCycles}
               </p>
             </div>
             <div className="flex items-center gap-6">

@@ -10,6 +10,7 @@ import {
   STARTING_MARGIN,
   BUDGET_PERCENTAGE,
   DEFAULT_CYCLE_TIME,
+  DEFAULT_MAX_CYCLES,
 } from './types';
 import { ALL_ACTIVITIES, getStartingNVAMaintenanceCost } from './activities';
 import { localKv } from './local-kv';
@@ -42,7 +43,11 @@ function generateCode(length: number = 6): string {
 }
 
 // Session operations
-export async function createSession(createdBy: string, teamCount: number = 8): Promise<{
+export async function createSession(
+  createdBy: string,
+  teamCount: number = 8,
+  maxCycles: number = DEFAULT_MAX_CYCLES
+): Promise<{
   session: GameSession;
   teamCodes: { teamNumber: number; code: string }[];
 }> {
@@ -54,6 +59,7 @@ export async function createSession(createdBy: string, teamCount: number = 8): P
     code: instructorCode,
     status: 'lobby',
     currentCycle: 0,
+    maxCycles,
     cycleStartTime: 0,
     cycleTimeLimit: DEFAULT_CYCLE_TIME,
     shock: null,

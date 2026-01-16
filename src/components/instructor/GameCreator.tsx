@@ -11,6 +11,7 @@ interface TeamCode {
 export function GameCreator() {
   const router = useRouter();
   const [teamCount, setTeamCount] = useState(8);
+  const [maxCycles, setMaxCycles] = useState(4);
   const [isCreating, setIsCreating] = useState(false);
   const [createdGame, setCreatedGame] = useState<{
     sessionId: string;
@@ -27,7 +28,7 @@ export function GameCreator() {
       const response = await fetch('/api/game/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teamCount }),
+        body: JSON.stringify({ teamCount, maxCycles }),
       });
 
       if (!response.ok) {
@@ -128,6 +129,29 @@ export function GameCreator() {
           ))}
         </div>
         <div className="mt-2 text-xs text-gray-500">Selected: {teamCount} teams</div>
+      </div>
+
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Number of Rounds
+        </label>
+        <div className="grid grid-cols-5 gap-2">
+          {[2, 3, 4, 5, 6].map((n) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => setMaxCycles(n)}
+              className={`py-2 rounded-lg border text-sm font-medium transition-colors ${
+                maxCycles === n
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+        <div className="mt-2 text-xs text-gray-500">Selected: {maxCycles} rounds</div>
       </div>
 
       {error && (

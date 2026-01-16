@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { createSession } from '@/lib/db';
-import { CreateGameRequest, CreateGameResponse, DEFAULT_TEAM_COUNT } from '@/lib/types';
+import { CreateGameRequest, CreateGameResponse, DEFAULT_TEAM_COUNT, DEFAULT_MAX_CYCLES } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,11 +14,13 @@ export async function POST(request: NextRequest) {
 
     const body: CreateGameRequest = await request.json();
     const teamCount = body.teamCount || DEFAULT_TEAM_COUNT;
+    const maxCycles = body.maxCycles || DEFAULT_MAX_CYCLES;
 
     // Create the game session
     const { session: gameSession, teamCodes } = await createSession(
       session.user.email || 'instructor',
-      teamCount
+      teamCount,
+      maxCycles
     );
 
     const response: CreateGameResponse = {
