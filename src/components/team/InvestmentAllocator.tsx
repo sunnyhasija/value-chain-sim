@@ -72,7 +72,7 @@ export function InvestmentAllocator({
 
   if (hasSubmitted) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+      <div className="rounded-2xl border border-green-200 bg-green-50 p-6 text-center shadow-sm">
         <div className="text-4xl mb-3">&#10003;</div>
         <h3 className="text-xl font-semibold text-green-800">
           Decisions Submitted
@@ -85,191 +85,195 @@ export function InvestmentAllocator({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Budget Summary */}
-      <BudgetSummary
-        total={budget}
-        allocations={allocations}
-        eliminationCosts={eliminationCosts}
-      />
+    <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="space-y-6">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h3 className="text-lg font-semibold text-slate-900 mb-1">
+            Value Creating Activities
+          </h3>
+          <p className="text-sm text-slate-500 mb-4">
+            Primary activities that directly create value for customers.
+          </p>
+          <div className="space-y-4">
+            {VALUE_CREATING_ACTIVITIES.map((def) => {
+              const activity = activities.find((a) => a.activityId === def.id);
+              if (!activity) return null;
 
-      {/* Value Creating Activities */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
-          <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
-          Value Creating Activities
-        </h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Primary activities that directly create value for customers.
-        </p>
-        <div className="space-y-4">
-          {VALUE_CREATING_ACTIVITIES.map((def) => {
-            const activity = activities.find((a) => a.activityId === def.id);
-            if (!activity) return null;
-
-            return (
-              <ActivityRow
-                key={def.id}
-                name={def.name}
-                description={def.description}
-                health={activity.health}
-                weight={def.weight}
-                allocation={allocations[def.id] || 0}
-                onAllocationChange={(v) => handleAllocationChange(def.id, v)}
-              />
-            );
-          })}
+              return (
+                <ActivityRow
+                  key={def.id}
+                  name={def.name}
+                  description={def.description}
+                  health={activity.health}
+                  weight={def.weight}
+                  allocation={allocations[def.id] || 0}
+                  onAllocationChange={(v) => handleAllocationChange(def.id, v)}
+                />
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Value Supporting Activities */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2">
-          <span className="w-3 h-3 bg-purple-500 rounded-full"></span>
-          Value Supporting Activities
-        </h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Support activities that enable primary activities.
-        </p>
-        <div className="space-y-4">
-          {VALUE_SUPPORTING_ACTIVITIES.map((def) => {
-            const activity = activities.find((a) => a.activityId === def.id);
-            if (!activity) return null;
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h3 className="text-lg font-semibold text-slate-900 mb-1">
+            Value Supporting Activities
+          </h3>
+          <p className="text-sm text-slate-500 mb-4">
+            Support activities that enable primary activities.
+          </p>
+          <div className="space-y-4">
+            {VALUE_SUPPORTING_ACTIVITIES.map((def) => {
+              const activity = activities.find((a) => a.activityId === def.id);
+              if (!activity) return null;
 
-            return (
-              <ActivityRow
-                key={def.id}
-                name={def.name}
-                description={def.description}
-                health={activity.health}
-                allocation={allocations[def.id] || 0}
-                onAllocationChange={(v) => handleAllocationChange(def.id, v)}
-              />
-            );
-          })}
+              return (
+                <ActivityRow
+                  key={def.id}
+                  name={def.name}
+                  description={def.description}
+                  health={activity.health}
+                  allocation={allocations[def.id] || 0}
+                  onAllocationChange={(v) => handleAllocationChange(def.id, v)}
+                />
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Non-Value-Add Activities */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold text-red-900 mb-4 flex items-center gap-2">
-          <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-          Non-Value-Add Activities
-        </h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Activities that consume resources. Consider eliminating them.
-        </p>
-        <div className="space-y-4">
-          {NON_VALUE_ADD_ACTIVITIES.map((def) => {
-            const activity = activities.find((a) => a.activityId === def.id);
-            if (!activity) return null;
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h3 className="text-lg font-semibold text-slate-900 mb-1">
+            Non-Value-Add Activities
+          </h3>
+          <p className="text-sm text-slate-500 mb-4">
+            Activities that consume resources. Consider eliminating them.
+          </p>
+          <div className="space-y-4">
+            {NON_VALUE_ADD_ACTIVITIES.map((def) => {
+              const activity = activities.find((a) => a.activityId === def.id);
+              if (!activity) return null;
 
-            // Skip innovation lab if not active
-            if (def.id === 'innovation-lab' && activity.health === 0) {
+              // Skip innovation lab if not active
+              if (def.id === 'innovation-lab' && activity.health === 0) {
+                return (
+                  <div
+                    key={def.id}
+                    className="rounded-xl border border-slate-200 bg-slate-50 p-3"
+                  >
+                    <div className="flex justify-between items-center gap-4">
+                      <div>
+                        <div className="font-medium text-slate-700">{def.name}</div>
+                        <div className="text-xs text-slate-500">{def.description}</div>
+                        <div className="text-xs text-amber-600 mt-1">
+                          Available to activate (costs ${def.maintenanceCost}M/cycle)
+                        </div>
+                      </div>
+                      {onActivateInnovationLab ? (
+                        <button
+                          onClick={onActivateInnovationLab}
+                          disabled={isActivatingInnovationLab}
+                          className="px-3 py-1 text-sm rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50"
+                        >
+                          {isActivatingInnovationLab ? 'Activating...' : 'Activate'}
+                        </button>
+                      ) : (
+                        <span className="text-sm text-slate-400">Not Active</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              }
+
+              if (activity.isEliminated) {
+                return (
+                  <div
+                    key={def.id}
+                    className="rounded-xl border border-slate-200 bg-slate-50 p-3"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <div className="font-medium text-slate-400 line-through">
+                          {def.name}
+                        </div>
+                        <div className="text-xs text-slate-400">{def.description}</div>
+                      </div>
+                      <span className="text-sm text-emerald-600">Eliminated</span>
+                    </div>
+                  </div>
+                );
+              }
+
+              const isMarkedForCut = cuts.includes(def.id);
+
               return (
                 <div
                   key={def.id}
-                  className="p-3 border border-gray-200 rounded-lg bg-gray-50"
+                  className={`rounded-xl border p-3 ${
+                    isMarkedForCut
+                      ? 'border-rose-300 bg-rose-50'
+                      : 'border-slate-200'
+                  }`}
                 >
-                  <div className="flex justify-between items-center gap-4">
+                  <div className="flex justify-between items-start gap-4">
                     <div>
-                      <div className="font-medium text-gray-700">{def.name}</div>
-                      <div className="text-xs text-gray-500">{def.description}</div>
-                      <div className="text-xs text-yellow-600 mt-1">
-                        Available to activate (costs ${def.maintenanceCost}M/cycle)
+                      <div className="font-medium text-slate-900">{def.name}</div>
+                      <div className="text-xs text-slate-500">{def.description}</div>
+                      <div className="text-xs text-rose-600 mt-1">
+                        Costing ${def.maintenanceCost}M/quarter
                       </div>
                     </div>
-                    {onActivateInnovationLab ? (
+                    {def.eliminationCost !== undefined && (
                       <button
-                        onClick={onActivateInnovationLab}
-                        disabled={isActivatingInnovationLab}
-                        className="px-3 py-1 text-sm rounded bg-yellow-500 text-white hover:bg-yellow-600 disabled:opacity-50"
+                        onClick={() => handleToggleCut(def.id)}
+                        className={`px-3 py-1 text-sm rounded ${
+                          isMarkedForCut
+                            ? 'bg-rose-600 text-white'
+                            : 'bg-rose-100 text-rose-700 hover:bg-rose-200'
+                        }`}
                       >
-                        {isActivatingInnovationLab ? 'Activating...' : 'Activate'}
+                        {isMarkedForCut
+                          ? `Eliminating ($${def.eliminationCost}M)`
+                          : `Eliminate ($${def.eliminationCost}M)`}
                       </button>
-                    ) : (
-                      <span className="text-sm text-gray-400">Not Active</span>
                     )}
                   </div>
                 </div>
               );
-            }
-
-            if (activity.isEliminated) {
-              return (
-                <div
-                  key={def.id}
-                  className="p-3 border border-gray-200 rounded-lg bg-gray-50"
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="font-medium text-gray-400 line-through">
-                        {def.name}
-                      </div>
-                      <div className="text-xs text-gray-400">{def.description}</div>
-                    </div>
-                    <span className="text-sm text-green-600">Eliminated</span>
-                  </div>
-                </div>
-              );
-            }
-
-            const isMarkedForCut = cuts.includes(def.id);
-
-            return (
-              <div
-                key={def.id}
-                className={`p-3 border rounded-lg ${
-                  isMarkedForCut
-                    ? 'border-red-300 bg-red-50'
-                    : 'border-gray-200'
-                }`}
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-medium text-gray-900">{def.name}</div>
-                    <div className="text-xs text-gray-500">{def.description}</div>
-                    <div className="text-xs text-red-600 mt-1">
-                      Costing ${def.maintenanceCost}M/quarter
-                    </div>
-                  </div>
-                  {def.eliminationCost !== undefined && (
-                    <button
-                      onClick={() => handleToggleCut(def.id)}
-                      className={`px-3 py-1 text-sm rounded ${
-                        isMarkedForCut
-                          ? 'bg-red-600 text-white'
-                          : 'bg-red-100 text-red-700 hover:bg-red-200'
-                      }`}
-                    >
-                      {isMarkedForCut
-                        ? `Eliminating ($${def.eliminationCost}M)`
-                        : `Eliminate ($${def.eliminationCost}M)`}
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Submit Button */}
-      <button
-        onClick={handleSubmit}
-        disabled={isSubmitting || isOverBudget}
-        className={`w-full py-4 text-lg font-semibold rounded-lg transition-colors ${
-          isOverBudget
-            ? 'bg-red-100 text-red-600 cursor-not-allowed'
-            : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
-        }`}
-      >
-        {isSubmitting
-          ? 'Submitting...'
-          : isOverBudget
-          ? 'Over Budget - Reduce Spending'
-          : 'Submit Decisions'}
-      </button>
+      <aside className="lg:sticky lg:top-24 h-fit space-y-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-base font-semibold text-slate-900">
+              Decision Console
+            </h3>
+            <span className="text-xs text-slate-500">Cycle Submit</span>
+          </div>
+          <BudgetSummary
+            total={budget}
+            allocations={allocations}
+            eliminationCosts={eliminationCosts}
+          />
+        </div>
+
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting || isOverBudget}
+          className={`w-full py-4 text-lg font-semibold rounded-xl transition-colors ${
+            isOverBudget
+              ? 'bg-rose-100 text-rose-600 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
+          }`}
+        >
+          {isSubmitting
+            ? 'Submitting...'
+            : isOverBudget
+            ? 'Over Budget - Reduce Spending'
+            : 'Submit Decisions'}
+        </button>
+      </aside>
     </div>
   );
 }
