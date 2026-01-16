@@ -111,17 +111,23 @@ export function GameCreator() {
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Number of Teams
         </label>
-        <select
-          value={teamCount}
-          onChange={(e) => setTeamCount(parseInt(e.target.value))}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-        >
+        <div className="grid grid-cols-5 gap-2">
           {[4, 6, 8, 10, 12].map((n) => (
-            <option key={n} value={n}>
-              {n} teams
-            </option>
+            <button
+              key={n}
+              type="button"
+              onClick={() => setTeamCount(n)}
+              className={`py-2 rounded-lg border text-sm font-medium transition-colors ${
+                teamCount === n
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              {n}
+            </button>
           ))}
-        </select>
+        </div>
+        <div className="mt-2 text-xs text-gray-500">Selected: {teamCount} teams</div>
       </div>
 
       {error && (
