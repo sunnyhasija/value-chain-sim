@@ -3,9 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { TeamActivity } from '@/lib/types';
 import {
-  getActivityById,
-  VALUE_CREATING_ACTIVITIES,
-  VALUE_SUPPORTING_ACTIVITIES,
+  ALL_ACTIVITIES,
   NON_VALUE_ADD_ACTIVITIES,
 } from '@/lib/activities';
 import { HealthBar } from '../shared/HealthBar';
@@ -95,145 +93,109 @@ export function InvestmentAllocator({
     <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
       <div className="space-y-6">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">
-            Activity Set A
-          </h3>
           <div className="space-y-4">
-            {VALUE_CREATING_ACTIVITIES.map((def) => {
+            {ALL_ACTIVITIES.map((def) => {
               const activity = activities.find((a) => a.activityId === def.id);
               if (!activity) return null;
 
-              return (
-                <ActivityRow
-                  key={def.id}
-                  name={def.name}
-                  description={def.description}
-                  health={activity.health}
-                  allocation={allocations[def.id] || 0}
-                  onAllocationChange={(v) => handleAllocationChange(def.id, v)}
-                />
-              );
-            })}
-          </div>
-        </div>
+              if (def.category === 'non-value-add') {
+                // Skip innovation lab if not active
+                if (def.id === 'innovation-lab' && activity.health === 0) {
+                  return (
+                    <div
+                      key={def.id}
+                      className="rounded-xl border border-slate-200 bg-slate-50 p-3"
+                    >
+                      <div className="flex justify-between items-center gap-4">
+                        <div>
+                          <div className="font-medium text-slate-700">{def.name}</div>
+                          <div className="text-xs text-slate-500">{def.description}</div>
+                          <div className="text-xs text-amber-600 mt-1">
+                            Available to activate (costs ${def.maintenanceCost}M/cycle)
+                          </div>
+                        </div>
+                        {onActivateInnovationLab ? (
+                          <button
+                            onClick={onActivateInnovationLab}
+                            disabled={isActivatingInnovationLab}
+                            className="px-3 py-1 text-sm rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50"
+                          >
+                            {isActivatingInnovationLab ? 'Activating...' : 'Activate'}
+                          </button>
+                        ) : (
+                          <span className="text-sm text-slate-400">Not Active</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">
-            Activity Set B
-          </h3>
-          <div className="space-y-4">
-            {VALUE_SUPPORTING_ACTIVITIES.map((def) => {
-              const activity = activities.find((a) => a.activityId === def.id);
-              if (!activity) return null;
+                if (activity.isEliminated) {
+                  return (
+                    <div
+                      key={def.id}
+                      className="rounded-xl border border-slate-200 bg-slate-50 p-3"
+                    >
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="font-medium text-slate-400 line-through">
+                            {def.name}
+                          </div>
+                          <div className="text-xs text-slate-400">{def.description}</div>
+                        </div>
+                        <span className="text-sm text-emerald-600">Eliminated</span>
+                      </div>
+                    </div>
+                  );
+                }
 
-              return (
-                <ActivityRow
-                  key={def.id}
-                  name={def.name}
-                  description={def.description}
-                  health={activity.health}
-                  allocation={allocations[def.id] || 0}
-                  onAllocationChange={(v) => handleAllocationChange(def.id, v)}
-                />
-              );
-            })}
-          </div>
-        </div>
+                const isMarkedForCut = cuts.includes(def.id);
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">
-            Activity Set C
-          </h3>
-          <div className="space-y-4">
-            {NON_VALUE_ADD_ACTIVITIES.map((def) => {
-              const activity = activities.find((a) => a.activityId === def.id);
-              if (!activity) return null;
-
-              // Skip innovation lab if not active
-              if (def.id === 'innovation-lab' && activity.health === 0) {
                 return (
                   <div
                     key={def.id}
-                    className="rounded-xl border border-slate-200 bg-slate-50 p-3"
+                    className={`rounded-xl border p-3 ${
+                      isMarkedForCut
+                        ? 'border-rose-300 bg-rose-50'
+                        : 'border-slate-200'
+                    }`}
                   >
-                    <div className="flex justify-between items-center gap-4">
+                    <div className="flex justify-between items-start gap-4">
                       <div>
-                        <div className="font-medium text-slate-700">{def.name}</div>
+                        <div className="font-medium text-slate-900">{def.name}</div>
                         <div className="text-xs text-slate-500">{def.description}</div>
-                        <div className="text-xs text-amber-600 mt-1">
-                          Available to activate (costs ${def.maintenanceCost}M/cycle)
+                        <div className="text-xs text-rose-600 mt-1">
+                          Costing ${def.maintenanceCost}M/quarter
                         </div>
                       </div>
-                      {onActivateInnovationLab ? (
+                      {def.eliminationCost !== undefined && (
                         <button
-                          onClick={onActivateInnovationLab}
-                          disabled={isActivatingInnovationLab}
-                          className="px-3 py-1 text-sm rounded bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50"
+                          onClick={() => handleToggleCut(def.id)}
+                          className={`px-3 py-1 text-sm rounded ${
+                            isMarkedForCut
+                              ? 'bg-rose-600 text-white'
+                              : 'bg-rose-100 text-rose-700 hover:bg-rose-200'
+                          }`}
                         >
-                          {isActivatingInnovationLab ? 'Activating...' : 'Activate'}
+                          {isMarkedForCut
+                            ? `Eliminating ($${def.eliminationCost}M)`
+                            : `Eliminate ($${def.eliminationCost}M)`}
                         </button>
-                      ) : (
-                        <span className="text-sm text-slate-400">Not Active</span>
                       )}
                     </div>
                   </div>
                 );
               }
 
-              if (activity.isEliminated) {
-                return (
-                  <div
-                    key={def.id}
-                    className="rounded-xl border border-slate-200 bg-slate-50 p-3"
-                  >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <div className="font-medium text-slate-400 line-through">
-                          {def.name}
-                        </div>
-                        <div className="text-xs text-slate-400">{def.description}</div>
-                      </div>
-                      <span className="text-sm text-emerald-600">Eliminated</span>
-                    </div>
-                  </div>
-                );
-              }
-
-              const isMarkedForCut = cuts.includes(def.id);
-
               return (
-                <div
+                <ActivityRow
                   key={def.id}
-                  className={`rounded-xl border p-3 ${
-                    isMarkedForCut
-                      ? 'border-rose-300 bg-rose-50'
-                      : 'border-slate-200'
-                  }`}
-                >
-                  <div className="flex justify-between items-start gap-4">
-                    <div>
-                      <div className="font-medium text-slate-900">{def.name}</div>
-                      <div className="text-xs text-slate-500">{def.description}</div>
-                      <div className="text-xs text-rose-600 mt-1">
-                        Costing ${def.maintenanceCost}M/quarter
-                      </div>
-                    </div>
-                    {def.eliminationCost !== undefined && (
-                      <button
-                        onClick={() => handleToggleCut(def.id)}
-                        className={`px-3 py-1 text-sm rounded ${
-                          isMarkedForCut
-                            ? 'bg-rose-600 text-white'
-                            : 'bg-rose-100 text-rose-700 hover:bg-rose-200'
-                        }`}
-                      >
-                        {isMarkedForCut
-                          ? `Eliminating ($${def.eliminationCost}M)`
-                          : `Eliminate ($${def.eliminationCost}M)`}
-                      </button>
-                    )}
-                  </div>
-                </div>
+                  name={def.name}
+                  description={def.description}
+                  health={activity.health}
+                  allocation={allocations[def.id] || 0}
+                  onAllocationChange={(v) => handleAllocationChange(def.id, v)}
+                />
               );
             })}
           </div>
