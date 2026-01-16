@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import { kv as vercelKv } from '@vercel/kv';
 import { v4 as uuidv4 } from 'uuid';
 import {
   GameSession,
@@ -13,6 +13,11 @@ import {
   DEFAULT_CYCLE_TIME,
 } from './types';
 import { ALL_ACTIVITIES, getStartingNVAMaintenanceCost } from './activities';
+import { localKv } from './local-kv';
+
+const hasRemoteKv =
+  !!process.env.KV_REST_API_URL && !!process.env.KV_REST_API_TOKEN;
+const kv = hasRemoteKv ? vercelKv : localKv;
 
 // Key prefixes for Redis
 const KEYS = {
