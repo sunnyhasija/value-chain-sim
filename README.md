@@ -1,5 +1,17 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Redis setup (for storage)
+
+The app can use Redis (recommended for Vercel deployments). Set `REDIS_URL` in your environment.
+
+Example (Redis Cloud):
+
+```
+REDIS_URL=rediss://default:YOUR_PASSWORD@your-host:your-port
+```
+
+If `REDIS_URL` is not set, the app falls back to local JSON storage for development.
+
 ## Getting Started
 
 First, run the development server:
