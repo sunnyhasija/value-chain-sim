@@ -397,7 +397,6 @@ export default function TeamGamePage() {
                         <div>Synergy: {linkageTotal.toFixed(1)}</div>
                         <div>Shock: {result.casBreakdown.shockEffect.toFixed(1)}</div>
                         <div>Overhead Drag: {result.casBreakdown.nvaDrag.toFixed(1)}</div>
-                        <div>Active Links: {result.activeLinkages.length}</div>
                       </div>
                     </div>
                   );
