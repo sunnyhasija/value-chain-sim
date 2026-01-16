@@ -365,6 +365,47 @@ export default function TeamGamePage() {
           hasSubmitted={gameState.team.hasSubmitted}
         />
 
+        {gameState.team.cycleResults.length > 0 && (
+          <div className="mt-6 bg-white rounded-lg shadow p-4">
+            <h3 className="font-semibold text-gray-900 mb-3">Team Scorecard</h3>
+            <div className="space-y-3">
+              {[...gameState.team.cycleResults]
+                .sort((a, b) => b.cycle - a.cycle)
+                .map((result) => {
+                  const linkageTotal = Object.values(result.casBreakdown.linkageBonuses).reduce(
+                    (sum, value) => sum + value,
+                    0
+                  );
+                  return (
+                    <div
+                      key={result.cycle}
+                      className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                    >
+                      <div className="flex items-center justify-between text-sm font-medium text-gray-800">
+                        <span>Cycle {result.cycle}</span>
+                        <span
+                          className={`${
+                            result.casChange >= 0 ? 'text-green-600' : 'text-red-600'
+                          }`}
+                        >
+                          {result.casChange > 0 ? '+' : ''}
+                          {result.casChange.toFixed(1)}
+                        </span>
+                      </div>
+                      <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600">
+                        <div>Base: {result.casBreakdown.baseScore.toFixed(1)}</div>
+                        <div>Synergy: {linkageTotal.toFixed(1)}</div>
+                        <div>Shock: {result.casBreakdown.shockEffect.toFixed(1)}</div>
+                        <div>Overhead Drag: {result.casBreakdown.nvaDrag.toFixed(1)}</div>
+                        <div>Active Links: {result.activeLinkages.length}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        )}
+
         {/* Rankings */}
         <div className="mt-6">
           <RankingDisplay
