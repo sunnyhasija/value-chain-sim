@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface TimerProps {
   startTime: number;
@@ -11,6 +11,7 @@ interface TimerProps {
 
 export function Timer({ startTime, duration, onExpire, className = '' }: TimerProps) {
   const [remaining, setRemaining] = useState(0);
+  const hasExpiredRef = useRef(false);
 
   useEffect(() => {
     const updateTimer = () => {
@@ -18,7 +19,8 @@ export function Timer({ startTime, duration, onExpire, className = '' }: TimerPr
       const left = Math.max(0, duration - elapsed);
       setRemaining(left);
 
-      if (left === 0 && onExpire) {
+      if (left === 0 && onExpire && !hasExpiredRef.current) {
+        hasExpiredRef.current = true;
         onExpire();
       }
     };
@@ -28,6 +30,10 @@ export function Timer({ startTime, duration, onExpire, className = '' }: TimerPr
 
     return () => clearInterval(interval);
   }, [startTime, duration, onExpire]);
+
+  useEffect(() => {
+    hasExpiredRef.current = false;
+  }, [startTime, duration]);
 
   const minutes = Math.floor(remaining / 60);
   const seconds = remaining % 60;

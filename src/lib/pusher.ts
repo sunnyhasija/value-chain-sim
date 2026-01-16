@@ -27,9 +27,19 @@ export function getPusherClient(): PusherClient {
   }
 
   if (!pusherClient) {
+    let teamId: string | null = null;
+    try {
+      teamId = window.localStorage.getItem('teamId');
+    } catch {
+      teamId = null;
+    }
+
     pusherClient = new PusherClient(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
       authEndpoint: '/api/pusher/auth',
+      auth: {
+        params: teamId ? { teamId } : {},
+      },
     });
   }
   return pusherClient;

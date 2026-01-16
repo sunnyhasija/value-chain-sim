@@ -134,9 +134,7 @@ export async function advanceCycle(
     return { success: false, error: 'Session not found' };
   }
 
-  // Check if we're completing the game
-  const isCompletingGame = session.currentCycle >= MAX_CYCLES;
-  if (isCompletingGame) {
+  if (session.status === 'completed') {
     return { success: false, error: 'Game already completed' };
   }
 
@@ -261,8 +259,8 @@ export async function advanceCycle(
     });
   }
 
-  // Advance to next cycle
-  await dbAdvanceCycle(sessionId, shockId);
+  // Advance to next cycle (shocks apply only once)
+  await dbAdvanceCycle(sessionId, null);
 
   // Check if game is now complete
   const updatedSession = await getSession(sessionId);
@@ -278,7 +276,7 @@ export async function advanceCycle(
     await triggerGameCompleted(sessionId, rankings);
   } else {
     // Notify cycle advanced
-    await triggerCycleAdvanced(sessionId, updatedSession?.currentCycle || 1, shock);
+    await triggerCycleAdvanced(sessionId, updatedSession?.currentCycle || 1, null);
   }
 
   return { success: true, results };

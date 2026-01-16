@@ -223,7 +223,7 @@ export function calculateNVADrag(activities: TeamActivity[]): { total: number; c
     if (!activity) continue;
 
     // Active NVA activities that aren't eliminated create drag
-    if (!activity.isEliminated && nvaDef.startingHealth === 100) {
+    if (!activity.isEliminated && activity.health > 0) {
       const drag = (nvaDef.maintenanceCost || 0) * 0.5; // Convert cost to CAS penalty
       costs[nvaDef.id] = -drag;
       total -= drag;
@@ -298,7 +298,7 @@ export function calculateNVAMaintenanceCost(activities: TeamActivity[]): number 
     if (!activity) continue;
 
     // If active and not eliminated, add maintenance cost
-    if (!activity.isEliminated && nvaDef.maintenanceCost) {
+    if (!activity.isEliminated && activity.health > 0 && nvaDef.maintenanceCost) {
       total += nvaDef.maintenanceCost;
     }
   }

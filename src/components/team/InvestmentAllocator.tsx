@@ -15,6 +15,8 @@ interface InvestmentAllocatorProps {
   activities: TeamActivity[];
   budget: number;
   onSubmit: (allocations: Record<string, number>, cuts: string[]) => void;
+  onActivateInnovationLab?: () => void;
+  isActivatingInnovationLab?: boolean;
   isSubmitting?: boolean;
   hasSubmitted?: boolean;
 }
@@ -23,6 +25,8 @@ export function InvestmentAllocator({
   activities,
   budget,
   onSubmit,
+  onActivateInnovationLab,
+  isActivatingInnovationLab = false,
   isSubmitting = false,
   hasSubmitted = false,
 }: InvestmentAllocatorProps) {
@@ -167,7 +171,7 @@ export function InvestmentAllocator({
                   key={def.id}
                   className="p-3 border border-gray-200 rounded-lg bg-gray-50"
                 >
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center gap-4">
                     <div>
                       <div className="font-medium text-gray-700">{def.name}</div>
                       <div className="text-xs text-gray-500">{def.description}</div>
@@ -175,7 +179,17 @@ export function InvestmentAllocator({
                         Available to activate (costs ${def.maintenanceCost}M/cycle)
                       </div>
                     </div>
-                    <span className="text-sm text-gray-400">Not Active</span>
+                    {onActivateInnovationLab ? (
+                      <button
+                        onClick={onActivateInnovationLab}
+                        disabled={isActivatingInnovationLab}
+                        className="px-3 py-1 text-sm rounded bg-yellow-500 text-white hover:bg-yellow-600 disabled:opacity-50"
+                      >
+                        {isActivatingInnovationLab ? 'Activating...' : 'Activate'}
+                      </button>
+                    ) : (
+                      <span className="text-sm text-gray-400">Not Active</span>
+                    )}
                   </div>
                 </div>
               );

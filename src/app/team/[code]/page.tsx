@@ -27,7 +27,9 @@ export default function TeamGamePage() {
   const [showBrief, setShowBrief] = useState(true);
   const [showShockModal, setShowShockModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isActivatingInnovationLab, setIsActivatingInnovationLab] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastShockId, setLastShockId] = useState<string | null>(null);
 
   const fetchGameState = useCallback(async (markSeen = false) => {
     const teamId = localStorage.getItem('teamId');
@@ -60,14 +62,19 @@ export default function TeamGamePage() {
         setShowBrief(false);
       }
 
-      // Show shock modal if there's a new shock
-      if (data.currentShock && !showShockModal) {
-        setShowShockModal(true);
+      // Show shock modal only when a new shock arrives
+      if (data.currentShock) {
+        if (data.currentShock.id !== lastShockId) {
+          setShowShockModal(true);
+          setLastShockId(data.currentShock.id);
+        }
+      } else {
+        setLastShockId(null);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     }
-  }, [router, showShockModal]);
+  }, [router, lastShockId]);
 
   useEffect(() => {
     // Verify team code matches
@@ -144,6 +151,33 @@ export default function TeamGamePage() {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleActivateInnovationLab = async () => {
+    const teamId = localStorage.getItem('teamId');
+    if (!teamId) return;
+
+    setIsActivatingInnovationLab(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/game/innovation/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamId }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to activate Innovation Lab');
+      }
+
+      await fetchGameState();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setIsActivatingInnovationLab(false);
     }
   };
 
@@ -295,6 +329,8 @@ export default function TeamGamePage() {
           activities={gameState.activities}
           budget={gameState.team.budget}
           onSubmit={handleSubmitDecisions}
+          onActivateInnovationLab={handleActivateInnovationLab}
+          isActivatingInnovationLab={isActivatingInnovationLab}
           isSubmitting={isSubmitting}
           hasSubmitted={gameState.team.hasSubmitted}
         />
