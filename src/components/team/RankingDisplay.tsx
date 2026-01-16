@@ -30,6 +30,10 @@ export function RankingDisplay({
   return (
     <div className="bg-white rounded-lg shadow p-4">
       <h3 className="font-semibold text-gray-900 mb-3">Current Rankings</h3>
+      <div className="flex items-center justify-between text-xs text-gray-500 px-2 pb-2">
+        <span>Team</span>
+        <span>Score (CAS)</span>
+      </div>
       <div className="space-y-2">
         {rankings.map((ranking) => {
           const isCurrentTeam = ranking.teamId === currentTeamId;

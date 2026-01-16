@@ -189,6 +189,9 @@ export default function TeamGamePage() {
     );
   }
 
+  const latestCycleResult =
+    gameState.team.cycleResults[gameState.team.cycleResults.length - 1] || null;
+
   // Show company brief first
   if (showBrief && gameState.session.status !== 'lobby') {
     return (
@@ -299,11 +302,35 @@ export default function TeamGamePage() {
                   duration={gameState.session.cycleTimeLimit}
                 />
               )}
-              <RankingDisplay
-                rankings={gameState.rankings}
-                currentTeamId={gameState.team.id}
-                compact
-              />
+              <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white px-4 py-2">
+                <div className="text-right">
+                  <div className="text-xs text-slate-500">Last Cycle</div>
+                  <div
+                    className={`text-sm font-semibold ${
+                      (latestCycleResult?.casChange || 0) >= 0
+                        ? 'text-emerald-600'
+                        : 'text-rose-600'
+                    }`}
+                  >
+                    {latestCycleResult?.casChange && latestCycleResult.casChange > 0 ? '+' : ''}
+                    {latestCycleResult ? latestCycleResult.casChange.toFixed(1) : '--'}
+                  </div>
+                </div>
+                <div className="h-8 w-px bg-slate-200" />
+                <div className="text-right">
+                  <div className="text-xs text-slate-500">Total CAS</div>
+                  <div className="text-sm font-semibold text-slate-900">
+                    {gameState.team.cas > 0 ? '+' : ''}
+                    {gameState.team.cas.toFixed(1)}
+                  </div>
+                </div>
+                <div className="h-8 w-px bg-slate-200" />
+                <RankingDisplay
+                  rankings={gameState.rankings}
+                  currentTeamId={gameState.team.id}
+                  compact
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -328,6 +355,7 @@ export default function TeamGamePage() {
         <InvestmentAllocator
           activities={gameState.activities}
           budget={gameState.team.budget}
+          cycle={gameState.session.currentCycle}
           onSubmit={handleSubmitDecisions}
           onActivateInnovationLab={handleActivateInnovationLab}
           isActivatingInnovationLab={isActivatingInnovationLab}

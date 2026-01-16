@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { TeamActivity } from '@/lib/types';
 import {
   getActivityById,
@@ -14,6 +14,7 @@ import { BudgetSummary } from '../shared/BudgetMeter';
 interface InvestmentAllocatorProps {
   activities: TeamActivity[];
   budget: number;
+  cycle: number;
   onSubmit: (allocations: Record<string, number>, cuts: string[]) => void;
   onActivateInnovationLab?: () => void;
   isActivatingInnovationLab?: boolean;
@@ -24,6 +25,7 @@ interface InvestmentAllocatorProps {
 export function InvestmentAllocator({
   activities,
   budget,
+  cycle,
   onSubmit,
   onActivateInnovationLab,
   isActivatingInnovationLab = false,
@@ -32,6 +34,11 @@ export function InvestmentAllocator({
 }: InvestmentAllocatorProps) {
   const [allocations, setAllocations] = useState<Record<string, number>>({});
   const [cuts, setCuts] = useState<string[]>([]);
+
+  useEffect(() => {
+    setAllocations({});
+    setCuts([]);
+  }, [cycle]);
 
   const handleAllocationChange = (activityId: string, value: number) => {
     setAllocations((prev) => ({
@@ -88,12 +95,9 @@ export function InvestmentAllocator({
     <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
       <div className="space-y-6">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-900 mb-1">
-            Value Creating Activities
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">
+            Activity Set A
           </h3>
-          <p className="text-sm text-slate-500 mb-4">
-            Primary activities that directly create value for customers.
-          </p>
           <div className="space-y-4">
             {VALUE_CREATING_ACTIVITIES.map((def) => {
               const activity = activities.find((a) => a.activityId === def.id);
@@ -105,7 +109,6 @@ export function InvestmentAllocator({
                   name={def.name}
                   description={def.description}
                   health={activity.health}
-                  weight={def.weight}
                   allocation={allocations[def.id] || 0}
                   onAllocationChange={(v) => handleAllocationChange(def.id, v)}
                 />
@@ -115,12 +118,9 @@ export function InvestmentAllocator({
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-900 mb-1">
-            Value Supporting Activities
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">
+            Activity Set B
           </h3>
-          <p className="text-sm text-slate-500 mb-4">
-            Support activities that enable primary activities.
-          </p>
           <div className="space-y-4">
             {VALUE_SUPPORTING_ACTIVITIES.map((def) => {
               const activity = activities.find((a) => a.activityId === def.id);
@@ -141,12 +141,9 @@ export function InvestmentAllocator({
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-900 mb-1">
-            Non-Value-Add Activities
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">
+            Activity Set C
           </h3>
-          <p className="text-sm text-slate-500 mb-4">
-            Activities that consume resources. Consider eliminating them.
-          </p>
           <div className="space-y-4">
             {NON_VALUE_ADD_ACTIVITIES.map((def) => {
               const activity = activities.find((a) => a.activityId === def.id);
@@ -282,7 +279,6 @@ interface ActivityRowProps {
   name: string;
   description: string;
   health: number;
-  weight?: number;
   allocation: number;
   onAllocationChange: (value: number) => void;
 }
@@ -291,7 +287,6 @@ function ActivityRow({
   name,
   description,
   health,
-  weight,
   allocation,
   onAllocationChange,
 }: ActivityRowProps) {
@@ -301,11 +296,6 @@ function ActivityRow({
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <span className="font-medium text-gray-900">{name}</span>
-            {weight && (
-              <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded">
-                {weight}x weight
-              </span>
-            )}
           </div>
           <p className="text-xs text-gray-500 mt-0.5">{description}</p>
         </div>

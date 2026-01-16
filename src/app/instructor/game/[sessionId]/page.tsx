@@ -111,9 +111,6 @@ export default function InstructorGamePage() {
               Live Session
             </p>
             <h1 className="text-2xl font-semibold text-white">Game Management</h1>
-            <p className="text-xs text-slate-500 mt-1">
-              Session: {sessionId.slice(0, 8)}...
-            </p>
           </div>
           <div className="flex items-center gap-6">
             {gameState.session.cycleStartTime > 0 && (
