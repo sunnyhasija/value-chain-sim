@@ -189,6 +189,47 @@ export function CASBreakdown({ team, activities }: CASBreakdownProps) {
             })}
         </div>
       </div>
+
+      {/* Cycle Scorecard */}
+      <div className="pt-4 border-t">
+        <h4 className="font-medium text-gray-700 mb-3">Cycle Scorecard</h4>
+        <div className="space-y-2">
+          {team.cycleResults
+            .slice()
+            .sort((a, b) => b.cycle - a.cycle)
+            .map((result) => {
+              const linkageTotal = Object.values(result.casBreakdown.linkageBonuses).reduce(
+                (sum, value) => sum + value,
+                0
+              );
+              return (
+                <div
+                  key={result.cycle}
+                  className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                >
+                  <div className="flex items-center justify-between text-sm font-medium text-gray-800">
+                    <span>Cycle {result.cycle}</span>
+                    <span
+                      className={`${
+                        result.casChange >= 0 ? 'text-green-600' : 'text-red-600'
+                      }`}
+                    >
+                      {result.casChange > 0 ? '+' : ''}
+                      {result.casChange.toFixed(1)}
+                    </span>
+                  </div>
+                  <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-gray-600">
+                    <div>Base: {result.casBreakdown.baseScore.toFixed(1)}</div>
+                    <div>Linkages: {linkageTotal.toFixed(1)}</div>
+                    <div>Shock: {result.casBreakdown.shockEffect.toFixed(1)}</div>
+                    <div>NVA Drag: {result.casBreakdown.nvaDrag.toFixed(1)}</div>
+                    <div>Active Linkages: {result.activeLinkages.length}</div>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      </div>
     </div>
   );
 }
