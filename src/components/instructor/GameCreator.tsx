@@ -12,6 +12,7 @@ export function GameCreator() {
   const router = useRouter();
   const [teamCount, setTeamCount] = useState(8);
   const [maxCycles, setMaxCycles] = useState(4);
+  const [cycleTimeLimit, setCycleTimeLimit] = useState(0);
   const [isCreating, setIsCreating] = useState(false);
   const [createdGame, setCreatedGame] = useState<{
     sessionId: string;
@@ -28,7 +29,7 @@ export function GameCreator() {
       const response = await fetch('/api/game/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teamCount, maxCycles }),
+        body: JSON.stringify({ teamCount, maxCycles, cycleTimeLimit }),
       });
 
       if (!response.ok) {
@@ -152,6 +153,54 @@ export function GameCreator() {
           ))}
         </div>
         <div className="mt-2 text-xs text-gray-500">Selected: {maxCycles} rounds</div>
+      </div>
+
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Timing Mode
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { label: 'Manual (default)', value: 0 },
+            { label: 'Timed', value: 300 },
+          ].map((option) => (
+            <button
+              key={option.label}
+              type="button"
+              onClick={() => setCycleTimeLimit(option.value)}
+              className={`py-2 rounded-lg border text-sm font-medium transition-colors ${
+                cycleTimeLimit === option.value
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+        {cycleTimeLimit > 0 && (
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            {[180, 300, 420, 600].map((seconds) => (
+              <button
+                key={seconds}
+                type="button"
+                onClick={() => setCycleTimeLimit(seconds)}
+                className={`py-2 rounded-lg border text-sm font-medium transition-colors ${
+                  cycleTimeLimit === seconds
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                {Math.round(seconds / 60)} min
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="mt-2 text-xs text-gray-500">
+          {cycleTimeLimit > 0
+            ? `Timer: ${Math.round(cycleTimeLimit / 60)} minutes`
+            : 'Timer disabled'}
+        </div>
       </div>
 
       {error && (

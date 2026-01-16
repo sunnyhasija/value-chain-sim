@@ -296,10 +296,12 @@ export default function TeamGamePage() {
               </p>
             </div>
             <div className="flex items-center gap-6">
-              {gameState.session.cycleStartTime > 0 && (
+              {gameState.session.cycleStartTime > 0 &&
+                gameState.session.cycleTimeLimit > 0 && (
                 <CountdownDisplay
                   startTime={gameState.session.cycleStartTime}
                   duration={gameState.session.cycleTimeLimit}
+                  onExpire={() => fetchGameState()}
                 />
               )}
               <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white px-4 py-2">

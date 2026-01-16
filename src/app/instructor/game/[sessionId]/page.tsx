@@ -113,7 +113,8 @@ export default function InstructorGamePage() {
             <h1 className="text-2xl font-semibold text-white">Game Management</h1>
           </div>
           <div className="flex items-center gap-6">
-            {gameState.session.cycleStartTime > 0 && (
+            {gameState.session.cycleStartTime > 0 &&
+              gameState.session.cycleTimeLimit > 0 && (
               <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
                 <CountdownDisplay
                   startTime={gameState.session.cycleStartTime}

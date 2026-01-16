@@ -46,7 +46,8 @@ function generateCode(length: number = 6): string {
 export async function createSession(
   createdBy: string,
   teamCount: number = 8,
-  maxCycles: number = DEFAULT_MAX_CYCLES
+  maxCycles: number = DEFAULT_MAX_CYCLES,
+  cycleTimeLimit: number = DEFAULT_CYCLE_TIME
 ): Promise<{
   session: GameSession;
   teamCodes: { teamNumber: number; code: string }[];
@@ -61,7 +62,7 @@ export async function createSession(
     currentCycle: 0,
     maxCycles,
     cycleStartTime: 0,
-    cycleTimeLimit: DEFAULT_CYCLE_TIME,
+    cycleTimeLimit,
     shock: null,
     createdAt: Date.now(),
     createdBy,

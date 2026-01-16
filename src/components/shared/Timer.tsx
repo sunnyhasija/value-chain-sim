@@ -60,13 +60,19 @@ interface CountdownDisplayProps {
   startTime: number;
   duration: number;
   label?: string;
+  onExpire?: () => void;
 }
 
-export function CountdownDisplay({ startTime, duration, label = 'Time Remaining' }: CountdownDisplayProps) {
+export function CountdownDisplay({
+  startTime,
+  duration,
+  label = 'Time Remaining',
+  onExpire,
+}: CountdownDisplayProps) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-gray-500">{label}:</span>
-      <Timer startTime={startTime} duration={duration} />
+      <Timer startTime={startTime} duration={duration} onExpire={onExpire} />
     </div>
   );
 }
