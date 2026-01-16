@@ -37,19 +37,31 @@ export default function InstructorLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-xl shadow-lg p-8">
+    <div className="min-h-screen bg-slate-950 text-white">
+      <div className="relative flex min-h-screen items-center justify-center px-6 py-12">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-24 right-8 h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl" />
+          <div className="absolute bottom-0 left-0 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
+        </div>
+
+        <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white p-8 text-slate-900 shadow-2xl">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900">Instructor Login</h1>
-            <p className="text-gray-600 mt-1">Value Chain Simulation</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
+              Instructor Access
+            </p>
+            <h1 className="text-2xl font-semibold text-slate-900">
+              Instructor Login
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Value Chain Simulation
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-slate-700 mb-1"
               >
                 Username
               </label>
@@ -58,7 +70,7 @@ export default function InstructorLogin() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-slate-900 focus:outline-none"
                 required
               />
             </div>
@@ -66,7 +78,7 @@ export default function InstructorLogin() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-slate-700 mb-1"
               >
                 Password
               </label>
@@ -75,21 +87,21 @@ export default function InstructorLogin() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-slate-900 focus:outline-none"
                 required
               />
             </div>
 
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-700 text-sm">{error}</p>
+              <div className="rounded-xl border border-rose-200 bg-rose-50 p-3">
+                <p className="text-sm text-rose-700">{error}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              className="w-full rounded-xl bg-slate-900 py-3 text-sm font-semibold text-white transition-colors hover:bg-slate-800 disabled:opacity-50"
             >
               {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
@@ -98,7 +110,7 @@ export default function InstructorLogin() {
           <div className="mt-6 text-center">
             <Link
               href="/"
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm font-semibold text-slate-700 hover:text-slate-900"
             >
               &larr; Back to Student Login
             </Link>
