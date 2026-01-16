@@ -103,65 +103,67 @@ export default function InstructorGamePage() {
   const canAdvance = gameState.session.currentCycle > 0 || gameState.session.status === 'lobby';
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">
-                Game Management
-              </h1>
-              <p className="text-sm text-gray-500">
-                Session: {sessionId.slice(0, 8)}...
-              </p>
-            </div>
-            <div className="flex items-center gap-6">
-              {gameState.session.cycleStartTime > 0 && (
+    <div className="min-h-screen bg-slate-950 text-white">
+      <header className="border-b border-white/10">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
+              Live Session
+            </p>
+            <h1 className="text-2xl font-semibold text-white">Game Management</h1>
+            <p className="text-xs text-slate-500 mt-1">
+              Session: {sessionId.slice(0, 8)}...
+            </p>
+          </div>
+          <div className="flex items-center gap-6">
+            {gameState.session.cycleStartTime > 0 && (
+              <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200">
                 <CountdownDisplay
                   startTime={gameState.session.cycleStartTime}
                   duration={gameState.session.cycleTimeLimit}
                 />
-              )}
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
-                  {gameState.session.currentCycle} / {MAX_CYCLES}
-                </div>
-                <div className="text-xs text-gray-500">Cycle</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {submittedCount} / {gameState.teams.length}
-                </div>
-                <div className="text-xs text-gray-500">Submitted</div>
+            )}
+            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-center">
+              <div className="text-xl font-semibold text-white">
+                {gameState.session.currentCycle} / {MAX_CYCLES}
+              </div>
+              <div className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                Cycle
+              </div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-center">
+              <div className="text-xl font-semibold text-emerald-300">
+                {submittedCount} / {gameState.teams.length}
+              </div>
+              <div className="text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                Submitted
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="mx-auto max-w-6xl px-6 py-8">
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-700">{error}</p>
+          <div className="mb-6 rounded-2xl border border-rose-300/40 bg-rose-500/10 p-4 text-rose-100">
+            {error}
           </div>
         )}
 
         {isGameComplete ? (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center mb-6">
-            <h2 className="text-3xl font-bold text-green-800 mb-4">
+          <div className="mb-6 rounded-3xl border border-emerald-200/20 bg-emerald-500/10 p-8 text-center">
+            <h2 className="text-3xl font-semibold text-emerald-100 mb-3">
               Game Complete!
             </h2>
-            <p className="text-green-700 mb-6">
+            <p className="text-emerald-200 mb-6">
               All {MAX_CYCLES} cycles have been completed.
             </p>
             <ExportButton sessionId={sessionId} />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Team Overview */}
-            <div className="lg:col-span-1">
+          <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr_0.9fr]">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-lg">
               <TeamOverview
                 teams={gameState.teams}
                 rankings={gameState.rankings}
@@ -171,32 +173,30 @@ export default function InstructorGamePage() {
               />
             </div>
 
-            {/* Middle Column - CAS Breakdown */}
-            <div className="lg:col-span-1">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-lg">
               {selectedTeam && selectedActivities ? (
                 <CASBreakdown team={selectedTeam} activities={selectedActivities} />
               ) : (
-                <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
+                <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 text-center text-slate-300">
                   Select a team to view CAS breakdown
                 </div>
               )}
             </div>
 
-            {/* Right Column - Controls */}
-            <div className="lg:col-span-1 space-y-6">
-              {/* Shock Injector */}
+            <div className="space-y-6">
               {gameState.session.currentCycle > 0 && (
-                <ShockInjector
-                  sessionId={sessionId}
-                  currentCycle={gameState.session.currentCycle}
-                  currentShock={gameState.currentShock}
-                  onShockInjected={fetchGameState}
-                />
+                <div className="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-lg">
+                  <ShockInjector
+                    sessionId={sessionId}
+                    currentCycle={gameState.session.currentCycle}
+                    currentShock={gameState.currentShock}
+                    onShockInjected={fetchGameState}
+                  />
+                </div>
               )}
 
-              {/* Advance Cycle Button */}
-              <div className="bg-white rounded-lg shadow p-4">
-                <h4 className="font-semibold text-gray-900 mb-4">
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-lg">
+                <h4 className="text-base font-semibold text-white mb-3">
                   {gameState.session.currentCycle === 0
                     ? 'Start Game'
                     : gameState.session.currentCycle >= MAX_CYCLES
@@ -205,12 +205,12 @@ export default function InstructorGamePage() {
                 </h4>
 
                 {gameState.session.currentCycle === 0 ? (
-                  <p className="text-sm text-gray-600 mb-4">
-                    Click below to start cycle 1. Teams will see the company brief
-                    and can begin making investment decisions.
+                  <p className="text-sm text-slate-300 mb-4">
+                    Start cycle 1 so teams can review the brief and begin making
+                    decisions.
                   </p>
                 ) : (
-                  <p className="text-sm text-gray-600 mb-4">
+                  <p className="text-sm text-slate-300 mb-4">
                     {submittedCount} of {gameState.teams.length} teams have
                     submitted. Advancing will process all decisions and calculate
                     results.
@@ -220,7 +220,7 @@ export default function InstructorGamePage() {
                 <button
                   onClick={handleAdvanceCycle}
                   disabled={isAdvancing || !canAdvance}
-                  className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isAdvancing
                     ? 'Processing...'
@@ -232,10 +232,11 @@ export default function InstructorGamePage() {
                 </button>
               </div>
 
-              {/* Export */}
               {gameState.session.currentCycle > 0 && (
-                <div className="bg-white rounded-lg shadow p-4">
-                  <h4 className="font-semibold text-gray-900 mb-4">Export Data</h4>
+                <div className="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-lg">
+                  <h4 className="text-base font-semibold text-white mb-3">
+                    Export Data
+                  </h4>
                   <ExportButton sessionId={sessionId} />
                 </div>
               )}
@@ -243,54 +244,53 @@ export default function InstructorGamePage() {
           </div>
         )}
 
-        {/* Final Rankings */}
         {isGameComplete && (
-          <div className="mt-6 bg-white rounded-lg shadow p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg">
+            <h3 className="text-xl font-semibold text-white mb-4">
               Final Rankings
             </h3>
             <div className="space-y-3">
               {gameState.rankings.map((ranking) => (
                 <div
                   key={ranking.teamId}
-                  className={`flex items-center justify-between p-4 rounded-lg ${
+                  className={`flex items-center justify-between rounded-2xl border p-4 ${
                     ranking.rank === 1
-                      ? 'bg-yellow-50 border-2 border-yellow-400'
+                      ? 'border-amber-400/60 bg-amber-500/10'
                       : ranking.rank === 2
-                      ? 'bg-gray-50 border-2 border-gray-300'
+                      ? 'border-slate-300/40 bg-white/5'
                       : ranking.rank === 3
-                      ? 'bg-amber-50 border-2 border-amber-400'
-                      : 'bg-gray-50'
+                      ? 'border-amber-300/40 bg-amber-400/10'
+                      : 'border-white/10 bg-white/5'
                   }`}
                 >
                   <div className="flex items-center gap-4">
                     <span
-                      className={`w-10 h-10 flex items-center justify-center rounded-full text-lg font-bold ${
+                      className={`flex h-10 w-10 items-center justify-center rounded-full text-lg font-bold ${
                         ranking.rank === 1
-                          ? 'bg-yellow-400 text-yellow-900'
+                          ? 'bg-amber-400 text-amber-900'
                           : ranking.rank === 2
-                          ? 'bg-gray-300 text-gray-900'
+                          ? 'bg-slate-300 text-slate-900'
                           : ranking.rank === 3
                           ? 'bg-amber-500 text-white'
-                          : 'bg-gray-200 text-gray-700'
+                          : 'bg-white/10 text-slate-200'
                       }`}
                     >
                       {ranking.rank}
                     </span>
-                    <span className="text-lg font-medium text-gray-900">
+                    <span className="text-lg font-medium text-white">
                       {ranking.teamName}
                     </span>
                   </div>
                   <div className="text-right">
                     <div
-                      className={`text-2xl font-bold ${
-                        ranking.cas >= 0 ? 'text-green-600' : 'text-red-600'
+                      className={`text-2xl font-semibold ${
+                        ranking.cas >= 0 ? 'text-emerald-300' : 'text-rose-300'
                       }`}
                     >
                       {ranking.cas > 0 ? '+' : ''}
                       {ranking.cas.toFixed(1)}
                     </div>
-                    <div className="text-xs text-gray-500">Total CAS</div>
+                    <div className="text-xs text-slate-400">Total CAS</div>
                   </div>
                 </div>
               ))}
