@@ -3,11 +3,15 @@ import { createClient } from 'redis';
 type RedisClient = ReturnType<typeof createClient>;
 
 let client: RedisClient | null = null;
+let connectPromise: Promise<RedisClient> | null = null;
 
 async function getClient(): Promise<RedisClient> {
   if (!client) {
     client = createClient({
       url: process.env.REDIS_URL,
+      socket: {
+        reconnectStrategy: (retries) => Math.min(retries * 50, 2000),
+      },
     });
     client.on('error', (error) => {
       console.error('Redis client error:', error);
@@ -15,7 +19,10 @@ async function getClient(): Promise<RedisClient> {
   }
 
   if (!client.isOpen) {
-    await client.connect();
+    if (!connectPromise) {
+      connectPromise = client.connect().then(() => client!);
+    }
+    await connectPromise;
   }
 
   return client;

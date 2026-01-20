@@ -64,12 +64,24 @@ export async function submitDecision(
 
   const activities = await getTeamActivities(teamId);
 
-  // Validate allocations don't exceed budget
-  const totalAllocations = Object.values(allocations).reduce((a, b) => a + b, 0);
+  // Validate allocations
+  let totalAllocations = 0;
+  for (const [activityId, rawValue] of Object.entries(allocations)) {
+    const value = Number(rawValue);
+    if (!Number.isFinite(value) || value < 0) {
+      return { success: false, error: `Invalid allocation for ${activityId}` };
+    }
+    const activity = activities.find(a => a.activityId === activityId);
+    if (!activity) {
+      return { success: false, error: `Unknown activity ${activityId}` };
+    }
+    totalAllocations += value;
+  }
 
   // Calculate elimination costs
   let eliminationCosts = 0;
-  for (const activityId of cuts) {
+  const uniqueCuts = Array.from(new Set(cuts));
+  for (const activityId of uniqueCuts) {
     const def = NON_VALUE_ADD_ACTIVITIES.find(a => a.id === activityId);
     if (def && def.eliminationCost) {
       eliminationCosts += def.eliminationCost;
@@ -82,7 +94,7 @@ export async function submitDecision(
   }
 
   // Validate cuts - can't cut already eliminated or non-existent activities
-  for (const activityId of cuts) {
+  for (const activityId of uniqueCuts) {
     const activity = activities.find(a => a.activityId === activityId);
     if (!activity) {
       return { success: false, error: `Activity ${activityId} not found` };
@@ -107,7 +119,7 @@ export async function submitDecision(
     sessionId: team.sessionId,
     cycle: session.currentCycle,
     allocations,
-    cuts,
+    cuts: uniqueCuts,
     submittedAt: Date.now(),
   };
 
