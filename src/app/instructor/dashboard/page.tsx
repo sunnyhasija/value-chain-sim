@@ -98,6 +98,10 @@ export default function InstructorDashboard() {
             <li>Export results at the end for debrief analysis</li>
           </ol>
         </section>
+
+        <p className="text-center text-xs text-slate-500">
+          Built by Professors at GVSU
+        </p>
       </main>
     </div>
   );

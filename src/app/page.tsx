@@ -178,6 +178,10 @@ export default function Home() {
                 Instructor Login
               </Link>
             </div>
+
+            <p className="mt-4 text-center text-xs text-slate-400">
+              Built by Professors at GVSU
+            </p>
           </div>
         </div>
       </div>

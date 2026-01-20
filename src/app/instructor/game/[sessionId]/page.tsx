@@ -295,6 +295,10 @@ export default function InstructorGamePage() {
             </div>
           </div>
         )}
+
+        <p className="mt-10 text-center text-xs text-slate-500">
+          Built by Professors at GVSU
+        </p>
       </main>
     </div>
   );
