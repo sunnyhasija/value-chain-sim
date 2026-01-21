@@ -9,6 +9,7 @@ import { CASBreakdown } from '@/components/instructor/CASBreakdown';
 import { ShockInjector } from '@/components/instructor/ShockInjector';
 import { ExportButton } from '@/components/instructor/ExportButton';
 import { CountdownDisplay } from '@/components/shared/Timer';
+import { InstructorScorecard } from '@/components/instructor/InstructorScorecard';
 
 interface GameState {
   session: GameSession;
@@ -251,128 +252,11 @@ export default function InstructorGamePage() {
 
         {isGameComplete && (
           <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg">
-            <h3 className="text-xl font-semibold text-white mb-4">
-              Final Rankings
-            </h3>
-            <div className="space-y-3">
-              {gameState.rankings.map((ranking) => (
-                <div
-                  key={ranking.teamId}
-                  className={`flex items-center justify-between rounded-2xl border p-4 ${
-                    ranking.rank === 1
-                      ? 'border-amber-400/60 bg-amber-500/10'
-                      : ranking.rank === 2
-                      ? 'border-slate-300/40 bg-white/5'
-                      : ranking.rank === 3
-                      ? 'border-amber-300/40 bg-amber-400/10'
-                      : 'border-white/10 bg-white/5'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <span
-                      className={`flex h-10 w-10 items-center justify-center rounded-full text-lg font-bold ${
-                        ranking.rank === 1
-                          ? 'bg-amber-400 text-amber-900'
-                          : ranking.rank === 2
-                          ? 'bg-slate-300 text-slate-900'
-                          : ranking.rank === 3
-                          ? 'bg-amber-500 text-white'
-                          : 'bg-white/10 text-slate-200'
-                      }`}
-                    >
-                      {ranking.rank}
-                    </span>
-                    <span className="text-lg font-medium text-white">
-                      {ranking.teamName}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <div
-                      className={`text-2xl font-semibold ${
-                        ranking.cas >= 0 ? 'text-emerald-300' : 'text-rose-300'
-                      }`}
-                    >
-                      {ranking.cas > 0 ? '+' : ''}
-                      {ranking.cas.toFixed(1)}
-                    </div>
-                    <div className="text-xs text-slate-400">Total CAS</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {isGameComplete && (
-          <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg">
-            <h3 className="text-xl font-semibold text-white mb-4">
-              Team Decisions & Scorecards
-            </h3>
-            <div className="space-y-4">
-              {gameState.teams.map((team) => (
-                <details
-                  key={team.id}
-                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
-                >
-                  <summary className="cursor-pointer text-sm font-semibold text-slate-100">
-                    {team.name} ({team.code})
-                  </summary>
-                  <div className="mt-3 space-y-3 text-sm text-slate-200">
-                    {[...team.cycleResults]
-                      .sort((a, b) => a.cycle - b.cycle)
-                      .map((result) => {
-                        const decision = decisionMap.get(`${team.id}:${result.cycle}`);
-                        const allocations = decision?.allocations || {};
-                        const allocationList = Object.entries(allocations)
-                          .filter(([, value]) => value > 0)
-                          .map(([activityId, value]) => `${activityId}: $${value}M`);
-                        const cutsList = decision?.cuts?.length
-                          ? decision.cuts.join(', ')
-                          : 'None';
-
-                        return (
-                          <div
-                            key={result.cycle}
-                            className="rounded-xl border border-white/10 bg-slate-900/40 p-3"
-                          >
-                            <div className="flex items-center justify-between text-sm font-medium">
-                              <span>Cycle {result.cycle}</span>
-                              <span
-                                className={`${
-                                  result.casChange >= 0
-                                    ? 'text-emerald-300'
-                                    : 'text-rose-300'
-                                }`}
-                              >
-                                {result.casChange > 0 ? '+' : ''}
-                                {result.casChange.toFixed(1)} CAS
-                              </span>
-                            </div>
-                            <div className="mt-2 grid gap-2 text-xs text-slate-300">
-                              <div>
-                                Decisions:{' '}
-                                {allocationList.length > 0
-                                  ? allocationList.join(' • ')
-                                  : 'No submission'}
-                              </div>
-                              <div>Cuts: {cutsList}</div>
-                              <div>
-                                Breakdown: Base {result.casBreakdown.baseScore.toFixed(1)} •
-                                Linkages{' '}
-                                {Object.values(result.casBreakdown.linkageBonuses)
-                                  .reduce((sum, value) => sum + value, 0)
-                                  .toFixed(1)}
-                                • Shock {result.casBreakdown.shockEffect.toFixed(1)} •
-                                NVA {result.casBreakdown.nvaDrag.toFixed(1)}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                  </div>
-                </details>
-              ))}
-            </div>
+            <InstructorScorecard
+              teams={gameState.teams}
+              rankings={gameState.rankings}
+              decisions={gameState.decisions}
+            />
           </div>
         )}
 
