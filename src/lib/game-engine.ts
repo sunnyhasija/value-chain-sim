@@ -13,6 +13,7 @@ import {
   getSessionTeams,
   getTeam,
   getTeamActivities,
+  getSessionDecisions,
   updateTeam,
   updateTeamActivities,
   saveDecision,
@@ -322,11 +323,13 @@ export async function getInstructorGameState(sessionId: string): Promise<{
   teams: Team[];
   teamActivities: Record<string, TeamActivity[]>;
   rankings: TeamRanking[];
+  decisions: Decision[];
 } | null> {
   const session = await getSession(sessionId);
   if (!session) return null;
 
   const teams = await getSessionTeams(sessionId);
+  const decisions = await getSessionDecisions(sessionId);
 
   const teamActivities: Record<string, TeamActivity[]> = {};
   for (const team of teams) {
@@ -337,7 +340,7 @@ export async function getInstructorGameState(sessionId: string): Promise<{
     teams.map(t => ({ id: t.id, name: t.name, cas: t.cas, hasSubmitted: t.hasSubmitted }))
   );
 
-  return { session, teams, teamActivities, rankings };
+  return { session, teams, teamActivities, rankings, decisions };
 }
 
 // Mark team as having seen the company brief

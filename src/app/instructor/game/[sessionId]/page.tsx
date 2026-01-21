@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
-import { GameSession, Team, TeamActivity, TeamRanking, ShockDefinition } from '@/lib/types';
+import { Decision, GameSession, Team, TeamActivity, TeamRanking, ShockDefinition } from '@/lib/types';
 import { TeamOverview } from '@/components/instructor/TeamOverview';
 import { CASBreakdown } from '@/components/instructor/CASBreakdown';
 import { ShockInjector } from '@/components/instructor/ShockInjector';
@@ -16,6 +16,7 @@ interface GameState {
   teamActivities: Record<string, TeamActivity[]>;
   rankings: TeamRanking[];
   currentShock: ShockDefinition | null;
+  decisions: Decision[];
 }
 
 export default function InstructorGamePage() {
@@ -101,6 +102,12 @@ export default function InstructorGamePage() {
   const submittedCount = gameState.teams.filter((t) => t.hasSubmitted).length;
   const isGameComplete = gameState.session.status === 'completed';
   const canAdvance = gameState.session.currentCycle > 0 || gameState.session.status === 'lobby';
+  const decisionMap = new Map(
+    gameState.decisions.map((decision) => [
+      `${decision.teamId}:${decision.cycle}`,
+      decision,
+    ])
+  );
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -291,6 +298,79 @@ export default function InstructorGamePage() {
                     <div className="text-xs text-slate-400">Total CAS</div>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {isGameComplete && (
+          <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg">
+            <h3 className="text-xl font-semibold text-white mb-4">
+              Team Decisions & Scorecards
+            </h3>
+            <div className="space-y-4">
+              {gameState.teams.map((team) => (
+                <details
+                  key={team.id}
+                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
+                >
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-100">
+                    {team.name} ({team.code})
+                  </summary>
+                  <div className="mt-3 space-y-3 text-sm text-slate-200">
+                    {[...team.cycleResults]
+                      .sort((a, b) => a.cycle - b.cycle)
+                      .map((result) => {
+                        const decision = decisionMap.get(`${team.id}:${result.cycle}`);
+                        const allocations = decision?.allocations || {};
+                        const allocationList = Object.entries(allocations)
+                          .filter(([, value]) => value > 0)
+                          .map(([activityId, value]) => `${activityId}: $${value}M`);
+                        const cutsList = decision?.cuts?.length
+                          ? decision.cuts.join(', ')
+                          : 'None';
+
+                        return (
+                          <div
+                            key={result.cycle}
+                            className="rounded-xl border border-white/10 bg-slate-900/40 p-3"
+                          >
+                            <div className="flex items-center justify-between text-sm font-medium">
+                              <span>Cycle {result.cycle}</span>
+                              <span
+                                className={`${
+                                  result.casChange >= 0
+                                    ? 'text-emerald-300'
+                                    : 'text-rose-300'
+                                }`}
+                              >
+                                {result.casChange > 0 ? '+' : ''}
+                                {result.casChange.toFixed(1)} CAS
+                              </span>
+                            </div>
+                            <div className="mt-2 grid gap-2 text-xs text-slate-300">
+                              <div>
+                                Decisions:{' '}
+                                {allocationList.length > 0
+                                  ? allocationList.join(' • ')
+                                  : 'No submission'}
+                              </div>
+                              <div>Cuts: {cutsList}</div>
+                              <div>
+                                Breakdown: Base {result.casBreakdown.baseScore.toFixed(1)} •
+                                Linkages{' '}
+                                {Object.values(result.casBreakdown.linkageBonuses)
+                                  .reduce((sum, value) => sum + value, 0)
+                                  .toFixed(1)}
+                                • Shock {result.casBreakdown.shockEffect.toFixed(1)} •
+                                NVA {result.casBreakdown.nvaDrag.toFixed(1)}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </details>
               ))}
             </div>
           </div>

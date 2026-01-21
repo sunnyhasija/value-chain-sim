@@ -65,12 +65,19 @@ export function InvestmentAllocator({
     return allocationTotal + eliminationCosts;
   }, [allocations, eliminationCosts]);
 
+  const remainingBudget = budget - totalSpent;
   const isOverBudget = totalSpent > budget;
 
   const handleSubmit = () => {
     if (isOverBudget) {
       alert('Cannot submit: spending exceeds budget');
       return;
+    }
+    if (remainingBudget > 0.01) {
+      const message = `You have $${remainingBudget.toFixed(1)}M unspent. Unspent budget does not carry over and may put your team at a disadvantage. Submit anyway?`;
+      if (!confirm(message)) {
+        return;
+      }
     }
     onSubmit(allocations, cuts);
   };
