@@ -1,5 +1,10 @@
 # Instructor Manual — Value Chain Investment Simulation
 
+This file is the original combined manual. For updated, role‑specific documents, see:
+1. `docs/student-guide.md`
+2. `docs/instructor-setup.md`
+3. `docs/instructor-teaching.md`
+
 ## Purpose
 This simulation helps students apply Porter's Value Chain by making strategic investment decisions under constraints. Teams allocate limited capital across activities, experience decays and shocks, and learn how fit between activities compounds results.
 

@@ -12,6 +12,9 @@ export interface ScorecardRow {
   linkageBonusTotal: number;
   shockEffect: number;
   nvaDrag: number;
+  activeLinkages: string[];
+  activatedLinkages: string[];
+  turnedOffLinkages: string[];
   activeLinkageCount: number;
   avgHealth: number;
   avgHealthDelta: number;
@@ -62,8 +65,15 @@ export function buildScorecards(
     const cycleResults = [...team.cycleResults].sort((a, b) => a.cycle - b.cycle);
     let previousAvgHealth: number | null = null;
     let casRunningTotal = 0;
+    let previousActiveLinkages: string[] = [];
 
     cycleResults.forEach((result: CycleResult) => {
+      const currentActive = result.activeLinkages || [];
+      const currentSet = new Set(currentActive);
+      const previousSet = new Set(previousActiveLinkages);
+      const activatedLinkages = currentActive.filter((id) => !previousSet.has(id));
+      const turnedOffLinkages = previousActiveLinkages.filter((id) => !currentSet.has(id));
+
       const healthValues = Object.values(result.newHealth || {});
       const avgHealth = healthValues.length ? sum(healthValues) / healthValues.length : 0;
       const avgHealthDelta =
@@ -92,7 +102,10 @@ export function buildScorecards(
         linkageBonusTotal: Math.round(linkageBonusTotal * 10) / 10,
         shockEffect: result.casBreakdown.shockEffect,
         nvaDrag: result.casBreakdown.nvaDrag,
-        activeLinkageCount: result.activeLinkages.length,
+        activeLinkages: currentActive,
+        activatedLinkages,
+        turnedOffLinkages,
+        activeLinkageCount: currentActive.length,
         avgHealth: Math.round(avgHealth * 10) / 10,
         avgHealthDelta: Math.round(avgHealthDelta * 10) / 10,
         allocationTotal: Math.round(allocationTotal * 10) / 10,
@@ -101,6 +114,8 @@ export function buildScorecards(
         cutsCount: cuts.length,
         allocationsByCategory: getAllocationsByCategory(allocations, activityDefinitions),
       });
+
+      previousActiveLinkages = currentActive;
     });
   });
 

@@ -151,7 +151,8 @@ export async function advanceCycle(
   }
 
   const teams = await getSessionTeams(sessionId);
-  const shock = shockId ? getShockById(shockId) ?? null : null;
+  const resolvedShockId = shockId ?? session.shock ?? null;
+  const shock = resolvedShockId ? getShockById(resolvedShockId) ?? null : null;
 
   // Process results only if this isn't the first cycle
   const results: CycleResult[] = [];
@@ -206,6 +207,8 @@ export async function advanceCycle(
     // Calculate CAS for all teams
     const allTeamsActivities = Object.values(allUpdatedActivities);
 
+    const resultsByTeamId = new Map<string, CycleResult>();
+
     for (const data of teamData) {
       const activities = allUpdatedActivities[data.id];
       const team = teams.find(t => t.id === data.id)!;
@@ -253,6 +256,7 @@ export async function advanceCycle(
       };
 
       results.push(result);
+      resultsByTeamId.set(data.id, result);
 
       // Update team
       team.cas += casResult.total;
@@ -269,6 +273,16 @@ export async function advanceCycle(
     results.forEach((result, index) => {
       result.rank = index + 1;
     });
+
+    // Persist ranks to stored team cycle results
+    for (const team of teams) {
+      const latest = team.cycleResults[team.cycleResults.length - 1];
+      if (!latest) continue;
+      const updated = resultsByTeamId.get(team.id);
+      if (!updated) continue;
+      latest.rank = updated.rank;
+      await updateTeam(team);
+    }
   }
 
   // Advance to next cycle (shocks apply only once)

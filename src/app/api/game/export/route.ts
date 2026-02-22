@@ -41,6 +41,8 @@ export async function GET(request: NextRequest) {
           'Shock Effect',
           'NVA Drag',
           'Active Linkages',
+          'Activated Linkages',
+          'Turned Off Linkages',
           'Avg Health',
           'Avg Health Delta',
           'Allocation Total',
@@ -63,7 +65,9 @@ export async function GET(request: NextRequest) {
             row.linkageBonusTotal.toFixed(1),
             row.shockEffect.toFixed(1),
             row.nvaDrag.toFixed(1),
-            row.activeLinkageCount.toString(),
+            `"${row.activeLinkages.join('; ')}"`,
+            `"${row.activatedLinkages.join('; ')}"`,
+            `"${row.turnedOffLinkages.join('; ')}"`,
             row.avgHealth.toFixed(1),
             row.avgHealthDelta.toFixed(1),
             row.allocationTotal.toFixed(1),
@@ -96,6 +100,8 @@ export async function GET(request: NextRequest) {
         'Final CAS',
         'Final Margin',
         'Final Budget',
+        'Final Active Linkages',
+        'Final Active Linkage Count',
         ...ALL_ACTIVITIES.map(a => `${a.name} Health`),
         ...LINKAGES.map(l => `${l.id} Active`),
       ].join(','));
@@ -111,6 +117,8 @@ export async function GET(request: NextRequest) {
           team.cas.toFixed(1),
           team.margin.toFixed(2),
           team.budget.toFixed(2),
+          `"${activeLinkages.join('; ')}"`,
+          activeLinkages.length.toString(),
           ...ALL_ACTIVITIES.map(a => {
             const act = activities.find(ta => ta.activityId === a.id);
             return act ? act.health.toFixed(1) : '0';

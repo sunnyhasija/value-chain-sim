@@ -3,11 +3,13 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 import { Team, TeamActivity, TeamRanking, GameSession, ShockDefinition } from '@/lib/types';
+import { ALL_ACTIVITIES } from '@/lib/activities';
 import { CompanyBrief } from '@/components/team/CompanyBrief';
 import { InvestmentAllocator } from '@/components/team/InvestmentAllocator';
 import { RankingDisplay } from '@/components/team/RankingDisplay';
 import { ShockAnnouncement, ShockBanner } from '@/components/team/ShockAnnouncement';
 import { CountdownDisplay } from '@/components/shared/Timer';
+import { LinkageDebrief } from '@/components/team/LinkageDebrief';
 import { getPusherClient, getSessionChannel, EVENTS } from '@/lib/pusher';
 
 interface TeamGameState {
@@ -191,6 +193,26 @@ export default function TeamGamePage() {
 
   const latestCycleResult =
     gameState.team.cycleResults[gameState.team.cycleResults.length - 1] || null;
+  const previousCycleResult =
+    gameState.team.cycleResults.length > 1
+      ? gameState.team.cycleResults[gameState.team.cycleResults.length - 2]
+      : null;
+
+  const activityDeltas = latestCycleResult
+    ? ALL_ACTIVITIES
+        .filter((activity) => activity.category !== 'non-value-add')
+        .map((activity) => {
+          const latestHealth = latestCycleResult.newHealth?.[activity.id] ?? activity.startingHealth;
+          const previousHealth = previousCycleResult
+            ? previousCycleResult.newHealth?.[activity.id] ?? activity.startingHealth
+            : activity.startingHealth;
+          return {
+            id: activity.id,
+            name: activity.name,
+            delta: Math.round((latestHealth - previousHealth) * 10) / 10,
+          };
+        })
+    : [];
 
   // Show company brief first
   if (showBrief && gameState.session.status !== 'lobby') {
@@ -267,6 +289,8 @@ export default function TeamGamePage() {
             rankings={gameState.rankings}
             currentTeamId={gameState.team.id}
           />
+
+          <LinkageDebrief cycleResults={gameState.team.cycleResults} />
         </div>
       </div>
     );
@@ -401,6 +425,39 @@ export default function TeamGamePage() {
                     </div>
                   );
                 })}
+            </div>
+          </div>
+        )}
+
+        {latestCycleResult && activityDeltas.length > 0 && (
+          <div className="mt-6 bg-white rounded-lg shadow p-4">
+            <h3 className="font-semibold text-gray-900 mb-2">
+              Activity Health Changes (Last Cycle)
+            </h3>
+            <p className="text-xs text-gray-500 mb-3">
+              Changes since the previous cycle. Positive means health improved.
+            </p>
+            <div className="grid grid-cols-1 gap-2 text-sm">
+              {activityDeltas.map((entry) => (
+                <div
+                  key={entry.id}
+                  className="flex items-center justify-between rounded-md border border-gray-100 bg-gray-50 px-3 py-2"
+                >
+                  <span className="text-gray-700">{entry.name}</span>
+                  <span
+                    className={`font-semibold ${
+                      entry.delta > 0
+                        ? 'text-emerald-600'
+                        : entry.delta < 0
+                        ? 'text-rose-600'
+                        : 'text-gray-500'
+                    }`}
+                  >
+                    {entry.delta > 0 ? '+' : ''}
+                    {entry.delta.toFixed(1)}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         )}

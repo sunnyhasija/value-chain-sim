@@ -24,6 +24,28 @@ export function CASBreakdown({ team, activities }: CASBreakdownProps) {
 
   const { casBreakdown, activeLinkages, orphanedLinkages } = latestResult;
 
+  const linkageLabel = (linkageId: string) => {
+    const linkage = getLinkageById(linkageId);
+    if (!linkage) return linkageId;
+    const support = getActivityById(linkage.supportActivityId);
+    const primary = getActivityById(linkage.primaryActivityId);
+    const supportName = support?.name || linkage.supportActivityId;
+    const primaryName = primary?.name || linkage.primaryActivityId;
+    return `${supportName} → ${primaryName}`;
+  };
+
+  const cycleResultsAsc = team.cycleResults.slice().sort((a, b) => a.cycle - b.cycle);
+  const linkageDiffByCycle = new Map<number, { activated: string[]; turnedOff: string[] }>();
+  cycleResultsAsc.forEach((result, index) => {
+    const previous = index === 0 ? [] : cycleResultsAsc[index - 1].activeLinkages;
+    const current = result.activeLinkages || [];
+    const currentSet = new Set(current);
+    const previousSet = new Set(previous);
+    const activated = current.filter((id) => !previousSet.has(id));
+    const turnedOff = previous.filter((id) => !currentSet.has(id));
+    linkageDiffByCycle.set(result.cycle, { activated, turnedOff });
+  });
+
   return (
     <div className="bg-white rounded-lg shadow p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -202,6 +224,7 @@ export function CASBreakdown({ team, activities }: CASBreakdownProps) {
                 (sum, value) => sum + value,
                 0
               );
+              const diff = linkageDiffByCycle.get(result.cycle) || { activated: [], turnedOff: [] };
               return (
                 <div
                   key={result.cycle}
@@ -224,6 +247,20 @@ export function CASBreakdown({ team, activities }: CASBreakdownProps) {
                     <div>Shock: {result.casBreakdown.shockEffect.toFixed(1)}</div>
                     <div>NVA Drag: {result.casBreakdown.nvaDrag.toFixed(1)}</div>
                     <div>Active Linkages: {result.activeLinkages.length}</div>
+                  </div>
+                  <div className="mt-2 grid grid-cols-1 gap-2 text-xs text-gray-600">
+                    <div>
+                      <span className="font-medium text-gray-700">Activated:</span>{' '}
+                      {diff.activated.length
+                        ? diff.activated.map(linkageLabel).join(' • ')
+                        : 'None'}
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Turned Off:</span>{' '}
+                      {diff.turnedOff.length
+                        ? diff.turnedOff.map(linkageLabel).join(' • ')
+                        : 'None'}
+                    </div>
                   </div>
                 </div>
               );

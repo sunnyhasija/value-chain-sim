@@ -1,5 +1,6 @@
 import { Decision, Team, TeamRanking } from '@/lib/types';
 import { ALL_ACTIVITIES, NON_VALUE_ADD_ACTIVITIES } from '@/lib/activities';
+import { InstructorLinkageDebrief } from '@/components/instructor/LinkageDebrief';
 
 type ContributionTotals = {
   base: number;
@@ -219,6 +220,7 @@ export function InstructorScorecard({ teams, rankings, decisions }: InstructorSc
     'What changed structurally after Cycle 2?',
     'Which teams improved without increasing total spend?',
     'Which patterns appear stable across multiple teams?',
+    'Where did linkages activate or turn off, and why?',
   ];
 
   return (
@@ -350,8 +352,12 @@ export function InstructorScorecard({ teams, rankings, decisions }: InstructorSc
 
       <p className="text-xs text-slate-400">{prompts[2]}</p>
 
+      <InstructorLinkageDebrief teams={teams} />
+
+      <p className="text-xs text-slate-400">{prompts[3]}</p>
+
       <section className="space-y-4">
-        <h3 className="text-xl font-semibold text-white">D — Decision Timeline</h3>
+        <h3 className="text-xl font-semibold text-white">E — Decision Timeline</h3>
         <div className="space-y-4">
           {teams.map((team) => {
             const teamDecisions = decisionsByTeam.get(team.id) || [];
